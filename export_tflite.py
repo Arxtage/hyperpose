@@ -27,7 +27,10 @@ rep_dataset=rep_dataset.map(lambda i,image_data: image_data)
 rep_dataset=rep_dataset.map(decode_image).batch(1)
 print(f"test rep_dataset:{rep_dataset}")
 #covert to tf-lite using int8-only quantization
-input_signature=tf.TensorSpec(shape=(None,3,None,None))
+if(model.data_format=="channels_last"):
+    input_signature=tf.TensorSpec(shape=(None,None,None,3))
+else:
+    input_signature=tf.TensorSpec(shape=(None,3,None,None))
 converter=tf.lite.TFLiteConverter.from_concrete_functions([model.infer.get_concrete_function(x=input_signature)])
 converter.optimizations=[tf.lite.Optimize.DEFAULT]
 converter.representative_dataset=rep_dataset
